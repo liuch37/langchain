@@ -1,5 +1,5 @@
 # langchain
-LangChain APP building examples.
+LangChain APP building examples. Note that using OpenAI API IS NOT FREE.
 
 ## installation
 1. Create Python environment.
@@ -12,7 +12,7 @@ conda create --name lamgchain python=3.10
 pip install -r requirements.txt
 ```
 
-3. Create your environmental variables by adding/editing ```.env```. Add your Google API and LangChain API (optional) keys in it. If you don't have the keys, go and apply them online for free.
+3. Create your environmental variables by adding/editing ```.env```. Add your Google API key, LangChain API key, OpenAI API key, etc in it. If you don't have the keys, go and apply them online for free.
 
 ## run app
 ```

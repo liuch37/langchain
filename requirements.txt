@@ -2,3 +2,7 @@ langchain-google-genai
 pillow
 streamlit
 python-dotenv
+langchain
+langchain-openai
+langchain_experimental
+tiktoken
