@@ -6,3 +6,5 @@ langchain
 langchain-openai
 langchain_experimental
 tiktoken
+langchain
+langchain-ollama
