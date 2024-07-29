@@ -6,5 +6,11 @@ langchain
 langchain-openai
 langchain_experimental
 tiktoken
-langchain
 langchain-ollama
+langchain_community
+langchain-google-genai
+sentence-transformers
+langchain_chroma
+langchainhub
+pypdf
+rapidocr-onnxruntime
