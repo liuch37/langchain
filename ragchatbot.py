@@ -40,35 +40,47 @@ for loader in loaders:
 
 vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
 
-retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 20})
+retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
 
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
 
-query = st.chat_input("Ask me a question!")
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-prompt = query
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-system_prompt = (
-    "You are an assistant for question-answering tasks. "
-    "Use the following pieces of retrieved context to answer "
-    "the question. If you don't know the answer, say that you "
-    "don't know. Use three sentences maximum and keep the "
-    "answer concise."
-    "\n\n"
-    "{context}"
-)
+# Accept user input
+if query := st.chat_input("Ask me a question regarding your database!"):
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": query})
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(query)
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system_prompt),
-        ("human", "{input}"),
-    ]
-)
+    system_prompt = (
+        "You are an virtual assistant for question-answering tasks. "
+        "Use the following pieces of retrieved context to answer "
+        "the question. If you don't know the answer, say that you "
+        "don't know. Use three sentences maximum and keep the "
+        "answer concise."
+        "\n\n"
+        "{context}"
+    )
 
-if query:
-    question_answer_chain = create_stuff_documents_chain(llm, prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-
-    response = rag_chain.invoke({"input": query})
-
-    st.write(response["answer"])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            ("human", "{input}"),
+        ]
+    )
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        question_answer_chain = create_stuff_documents_chain(llm, prompt)
+        rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        response = rag_chain.invoke({"input": query})
+        st.write(response["answer"])
+    st.session_state.messages.append({"role": "assistant", "content": response["answer"]})
