@@ -40,7 +40,9 @@ for loader in loaders:
     doc = text_splitter.split_documents(raw_documents)
     alldocument.extend(doc)
 
-vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
+client_settings = chromadb.Settings(chroma_server_host="localhost", chroma_server_http_port="8000")
+
+vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), client_settings=client_settings)
 
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
 
