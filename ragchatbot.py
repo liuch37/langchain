@@ -14,6 +14,8 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
+import chromadb
+from chromadb.config import Settings
 import pdb
 
 load_dotenv()
@@ -55,6 +57,8 @@ for message in st.session_state.messages:
 
 # Accept user input
 if query := st.chat_input("Ask me a question regarding your database!"):
+    # Remove cache for chromadb
+    chromadb.api.client.SharedSystemClient.clear_system_cache()
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": query})
     # Display user message in chat message container
