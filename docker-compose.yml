@@ -1,0 +1,10 @@
+version: '3'
+services:
+  rag-streamlit:
+    image: rag-streamlit:latest
+    build: ./app
+    command: streamlit run rag-streamlit --server.port 8080
+    volumes:
+      - ./:/app
+    ports:
+      - 8080:8080

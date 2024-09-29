@@ -40,14 +40,6 @@ for loader in loaders:
     doc = text_splitter.split_documents(raw_documents)
     alldocument.extend(doc)
 
-client_settings = chromadb.Settings(chroma_server_host="localhost", chroma_server_http_port="8000")
-
-vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), client_settings=client_settings)
-
-retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
-
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
-
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -59,6 +51,10 @@ for message in st.session_state.messages:
 
 # Accept user input
 if query := st.chat_input("Ask me a question regarding your database!"):
+    # Setup database and LLM
+    vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
+    retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
     # Remove cache for chromadb
     chromadb.api.client.SharedSystemClient.clear_system_cache()
     # Add user message to chat history

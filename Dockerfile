@@ -1,7 +1,7 @@
 # Build command: 
 # docker build -t rag-streamlit .
 # Deploy command:
-# docker run -p 8000:8000 rag-streamlit
+# docker run -p 8051:8051 rag-streamlit
 # app/Dockerfile
 
 FROM python:3.10-slim
@@ -19,8 +19,8 @@ COPY . .
 
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8000
+EXPOSE 8051
 
-HEALTHCHECK CMD curl --fail http://localhost:8000/_stcore/health
+HEALTHCHECK CMD curl --fail http://localhost:8051/_stcore/health
 
-ENTRYPOINT ["streamlit", "run", "ragchatbot.py", "--server.port=8000", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "ragchatbot.py", "--server.port=8051", "--server.address=0.0.0.0"]
