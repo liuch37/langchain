@@ -52,7 +52,7 @@ for message in st.session_state.messages:
 # Accept user input
 if query := st.chat_input("Ask me a question regarding your database!"):
     # Setup database and LLM
-    vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
+    vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), collection_metadata={"hnsw:space": "cosine"})
     retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
     # Remove cache for chromadb

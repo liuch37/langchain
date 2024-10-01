@@ -40,7 +40,7 @@ for loader in loaders:
     alldocument.extend(doc)
 
 # Setup database and LLM
-vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), persist_directory='./chromadb')
+vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), persist_directory='./chromadb', collection_metadata={"hnsw:space": "cosine"})
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
 
