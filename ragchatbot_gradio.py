@@ -10,9 +10,10 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import create_retrieval_chain
+from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 import chromadb
 from chromadb.config import Settings
@@ -44,29 +45,78 @@ vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGener
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
 
+# Setup chat_history
+chat_history = []
+
 # Accept user input
-def ask(query, history):
-    system_prompt = (
-        "You are an virtual assistant for question-answering tasks. "
-        "Use the following pieces of retrieved context to answer "
-        "the question. If you don't know the answer, say that you "
-        "don't know. Use three sentences maximum and keep the "
-        "answer concise."
-        "\n\n"
-        "{context}"
-    )
+def ask(query, history, enable_history=True):
+    if enable_history == False:
+        qa_system_prompt = (
+            "You are an virtual assistant for question-answering tasks. "
+            "Use the following pieces of retrieved context to answer "
+            "the question. If you don't know the answer, say that you "
+            "don't know. Use three sentences maximum and keep the "
+            "answer concise."
+            "\n\n"
+            "{context}"
+        )
 
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("human", "{input}"),
-        ]
-    )
-    question_answer_chain = create_stuff_documents_chain(llm, prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-    response = rag_chain.invoke({"input": query})
+        qa_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", qa_system_prompt),
+                ("human", "{input}"),
+            ]
+        )
 
-    return response["answer"]
+        question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+        rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        response = rag_chain.invoke({"input": query})
+
+        return response["answer"]
+    else:
+        rephrase_system_prompt = """Given a chat history and the latest user question
+            which might reference context in the chat history, formulate a standalone question
+            which can be understood without the chat history. Do NOT answer the question,
+            just reformulate it if needed and otherwise return it as is."""
+
+        rephrase_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", rephrase_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
+
+        history_aware_retriever = create_history_aware_retriever(
+            llm, retriever, rephrase_prompt
+        )
+
+        qa_system_prompt = (
+            "You are an virtual assistant for question-answering tasks. "
+            "Use the following pieces of retrieved context to answer "
+            "the question. If you don't know the answer, say that you "
+            "don't know. Use three sentences maximum and keep the "
+            "answer concise."
+            "\n\n"
+            "{context}"
+        )
+
+        qa_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", qa_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
+
+        question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+        rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+        response = rag_chain.invoke({"input": query, "chat_history": chat_history})
+
+        chat_history.extend([HumanMessage(content=query),
+                             AIMessage(content=response["answer"])])
+
+        return response["answer"]
 
 # lanuch gradio
 gr.ChatInterface(
