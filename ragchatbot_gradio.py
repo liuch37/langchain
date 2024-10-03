@@ -5,8 +5,8 @@ This code is to build a Q&A chatbot using RAG.
 import streamlit as st
 import time
 import os
-from langchain_ollama import OllamaEmbeddings # download ollama model first using 'ollama pull llama3'
-from langchain_ollama.llms import OllamaLLM
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
@@ -41,9 +41,11 @@ for loader in loaders:
     alldocument.extend(doc)
 
 # Setup database and LLM
-vectorstore = Chroma.from_documents(documents=alldocument, embedding=OllamaEmbeddings(model="llama3.1"), persist_directory='./chromadb', collection_metadata={"hnsw:space": "cosine"})
+print("Building database......")
+vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), persist_directory='./chromadb', collection_metadata={"hnsw:space": "cosine"})
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
-llm = OllamaLLM(model="llama3.1", temperature=0)
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
+print("Done building database......")
 
 # Setup chat_history
 chat_history = []
