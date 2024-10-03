@@ -44,7 +44,7 @@ for loader in loaders:
 print("Building database......")
 vectorstore = Chroma.from_documents(documents=alldocument, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"), persist_directory='./chromadb', collection_metadata={"hnsw:space": "cosine"})
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 30})
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0, max_tokens=None, timeout=None)
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, max_tokens=None, timeout=None)
 print("Done building database......")
 
 # Setup chat_history
