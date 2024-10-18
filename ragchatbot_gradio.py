@@ -47,9 +47,6 @@ retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, max_tokens=None, timeout=None)
 print("Done building database......")
 
-# Setup chat_history
-chat_history = []
-
 # Accept user input
 def ask(query, history, enable_history=True):
     if enable_history == False:
@@ -111,12 +108,16 @@ def ask(query, history, enable_history=True):
             ]
         )
 
+        # reformat history -> chat_history
+        # history is in the format of [[Human, AI], [Human, AI],...]
+        chat_history = []
+        for i in range(len(history)):
+            chat_history.extend([HumanMessage(content=history[i][0]),
+                                 AIMessage(content=history[i][1])])
+
         question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
         rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
         response = rag_chain.invoke({"input": query, "chat_history": chat_history})
-
-        chat_history.extend([HumanMessage(content=query),
-                             AIMessage(content=response["answer"])])
 
         return response["answer"]
 
