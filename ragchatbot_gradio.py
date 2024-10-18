@@ -1,5 +1,12 @@
 '''
 This code is to build a Q&A chatbot using RAG.
+
+Commands for uploading binary/sql files to github using lfs (from chatgpt):
+git lfs install
+git lfs track "*.bin"
+git add <your-binary-file> .gitattributes
+git commit -m "Add large binary file"
+git push origin main
 '''
 
 import streamlit as st
