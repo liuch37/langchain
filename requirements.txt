@@ -19,3 +19,4 @@ gradio==4.41.0
 gradio-tools==0.0.9
 numexpr==2.10.1
 duckduckgo_search==6.3.2
+ollama==0.3.0
