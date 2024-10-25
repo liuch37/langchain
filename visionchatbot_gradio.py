@@ -86,4 +86,4 @@ gr.ChatInterface(
     theme="soft",
     examples=[{"text": "Tell me about the image", "files": ["images/australia.jpg"]},
               {"text": "How many animals are in the image?", "files": ["images/cat_dog.jpg"]}],
-).launch()
+).launch(share=True)
