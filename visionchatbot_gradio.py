@@ -85,5 +85,6 @@ gr.ChatInterface(
     description="Ask Vision Chatbot any question regarding your uploaded image",
     theme="soft",
     examples=[{"text": "Tell me about the image", "files": ["images/australia.jpg"]},
-              {"text": "How many animals are in the image?", "files": ["images/cat_dog.jpg"]}],
+              {"text": "How many animals are in the image?", "files": ["images/cat_dog.jpg"]},
+              {"text": "Explain this image in detail.", "files": ["images/HcMETHK.png"]}],
 ).launch(share=True)
